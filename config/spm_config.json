@@ -1,0 +1,73 @@
+{
+  "preproc_spm_slicetime":
+  {
+    "prefix": "t"
+  },
+  "preproc_spm_realignunwarp":
+  {
+    "quality": 0.9,
+    "sep": 4,
+    "fwhm": 5,
+    "rtm": 0,
+    "einterp": 2,
+    "ewrap": [[0,0,0]],
+    "weight": "",
+    "basfcn": [[12,12]],
+    "regorder": 1,
+    "lambda": 100000,
+    "jm": 0,
+    "fot": [[4,5]],
+    "sot": [[]],
+    "uwfwhm": 4,
+    "rem": 1,
+    "noi": 5,
+    "expround": "Average",
+    "uwwhich": [[2,1]],
+    "rinterp": 4,
+    "wrap": [[0,0,0]],
+    "mask": 1,
+    "prefix": "u"
+  },
+  "preproc_spm_coregister":
+  {
+    "cost_fun": "nmi",
+    "sep": [[4,2]],
+    "tol": [[0.02,0.02,0.02,0.001,0.001,0.001,0.01,0.01,0.01,0.001,0.001,0.001]],
+    "fwhm": [[7,7]]
+  },
+  "preproc_spm_normalize":
+  {
+    "biasreg": 0.0001,
+    "biasfwhm": 60,
+    "affreg": "mni",
+    "reg": [[0,0.001,0.5,0.05,0.2]],
+    "fwhm": 0,
+    "samp": 3,
+    "bb": [[-78,-112,-70],[78,76,85]],
+    "vox": [[2,2,2]],
+    "interp": 4,
+    "prefix": "w"
+  },
+  "preproc_spm_smooth":
+  {
+    "fwhm": [[8,8,8]],
+    "dtype": 0,
+    "im": 0,
+    "prefix": "s"
+  },
+  "L1_spm_modelspec":
+  {
+    "fmri_t": 16,
+    "fmri_t0": 8,
+    "hrf_derivs": [[0,0]],
+    "volt": 1,
+    "global": "None",
+    "mthresh": 0.3,
+    "cvi": "AR(1)"
+  },
+  "L1_spm_modelest":
+  {
+    "write_residuals":0,
+    "method_classical":1
+  }
+}

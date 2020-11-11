@@ -1,0 +1,68 @@
+{
+  "reward":
+  {
+    "con1":
+    {
+      "name":"WinAnt>LossAnt",
+      "conditions":[["WinBigAnticipation","WinSmallAnticipation","LoseBigAnticipation","LoseSmallAnticipation"],
+        ["WinBigAnticipation","WinSmallAnticipation","LoseBigAnticipation","LoseSmallAnticipation"]],
+      "weights": [[0.25,0.25,-0.25,-0.25],[0.25,0.25,-0.25,-0.25]]
+    },
+    "con2":
+    {
+      "name":"WinAnt>NeutAnt",
+      "conditions":[["WinBigAnticipation","WinSmallAnticipation", "NeutralAnticipation"],
+        ["WinBigAnticipation","WinSmallAnticipation", "NeutralAnticipation"]],
+      "weights":[[0.25,0.25,-0.5],[0.25,0.25,-0.5]]
+    },
+    "con3":
+    {
+      "name":"LossAnt>NeutAnt",
+      "conditions":[["LoseBigAnticipation","LoseSmallAnticipation", "NeutralAnticipation"],
+        ["LoseBigAnticipation","LoseSmallAnticipation", "NeutralAnticipation"]],
+      "weights":[[0.25,0.25,-0.5],[0.25,0.25,-0.5]]
+    },
+    "con4":
+    {
+      "name":"BigWinAnt>NeutAnt",
+      "conditions":[["WinBigAnticipation","NeutralAnticipation"],["WinBigAnticipation","NeutralAnticipation"]],
+      "weights":[[0.5,-0.5],[0.5,-0.5]]
+    },
+    "con5":
+    {
+      "name":"SmallWinAnt>NeutAnt",
+      "conditions":[["WinSmallAnticipation","NeutralAnticipation"],["WinSmallAnticipation","NeutralAnticipation"]],
+      "weights":[[0.5,-0.5],[0.5,-0.5]]
+    },
+    "con6":
+    {
+      "name":"LoseBigAnt>NeutAnt",
+      "conditions":[["LoseBigAnticipation","NeutralAnticipation"],["LoseBigAnticipation","NeutralAnticipation"]],
+      "weights":[[0.5,-0.5],[0.5,-0.5]]
+    },
+    "con7":
+    {
+      "name":"LoseSmallAnt>NeutAnt",
+      "conditions":[["LoseSmallAnticipation","NeutralAnticipation"],["LoseSmallAnticipation","NeutralAnticipation"]],
+      "weights":[[0.5,-0.5],[0.5,-0.5]]
+    },
+    "con8":
+    {
+      "name":"BigWinAnt>SmallWinAnt",
+      "conditions":[["WinBigAnticipation","WinSmallAnticipation"],["WinBigAnticipation","WinSmallAnticipation"]],
+      "weights":[[0.5,-0.5],[0.5,-0.5]]
+    },
+    "con9":
+    {
+      "name":"LoseBigAnt>LoseSmallAnt",
+      "conditions":[["LoseBigAnticipation","LoseSmallAnticipation"],["LoseBigAnticipation","LoseSmallAnticipation"]],
+      "weights":[[0.5,-0.5],[0.5,-0.5]]
+    },
+    "con10":
+    {
+      "name":"NeutFeedPos>NeutFeedNeg",
+      "conditions":[["NeutralFeedbackPositive","NeutralFeedbackNegative"],["NeutralFeedbackPositive","NeutralFeedbackNegative"]],
+      "weights":[[0.5,-0.5],[0.5,-0.5]]
+    }
+  }
+}
