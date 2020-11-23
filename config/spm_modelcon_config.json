@@ -3,66 +3,333 @@
   {
     "con1":
     {
-      "name":"WinAnt>LossAnt",
-      "conditions":[["WinBigAnticipation","WinSmallAnticipation","LoseBigAnticipation","LoseSmallAnticipation"],
-        ["WinBigAnticipation","WinSmallAnticipation","LoseBigAnticipation","LoseSmallAnticipation"]],
-      "weights": [[0.25,0.25,-0.25,-0.25],[0.25,0.25,-0.25,-0.25]]
+      "name":"BigWin>LittleWin",
+      "conditions": [["BigWin","LittleWin"]],
+      "weights": [[1,-1]]
     },
     "con2":
     {
-      "name":"WinAnt>NeutAnt",
-      "conditions":[["WinBigAnticipation","WinSmallAnticipation", "NeutralAnticipation"],
-        ["WinBigAnticipation","WinSmallAnticipation", "NeutralAnticipation"]],
-      "weights":[[0.25,0.25,-0.5],[0.25,0.25,-0.5]]
+      "name":"BigWin>Neutral",
+      "conditions": [["BigWin","NeutralWin","NeutralLoss"]],
+      "weights": [[1,-0.5,-0.5]]
     },
     "con3":
     {
-      "name":"LossAnt>NeutAnt",
-      "conditions":[["LoseBigAnticipation","LoseSmallAnticipation", "NeutralAnticipation"],
-        ["LoseBigAnticipation","LoseSmallAnticipation", "NeutralAnticipation"]],
-      "weights":[[0.25,0.25,-0.5],[0.25,0.25,-0.5]]
+      "name":"BigWin>BigLoss",
+      "conditions": [["BigWin","BigLoss"]],
+      "weights": [[1,-1]]
     },
     "con4":
     {
-      "name":"BigWinAnt>NeutAnt",
-      "conditions":[["WinBigAnticipation","NeutralAnticipation"],["WinBigAnticipation","NeutralAnticipation"]],
-      "weights":[[0.5,-0.5],[0.5,-0.5]]
+      "name":"LittleWin>Neutral",
+      "conditions": [["LittleWin","NeutralWin","NeutralLoss"]],
+      "weights": [[1,-0.5,-0.5]]
     },
     "con5":
     {
-      "name":"SmallWinAnt>NeutAnt",
-      "conditions":[["WinSmallAnticipation","NeutralAnticipation"],["WinSmallAnticipation","NeutralAnticipation"]],
-      "weights":[[0.5,-0.5],[0.5,-0.5]]
+      "name":"LittleWin>LittleLoss",
+      "conditions": [["LittleWin","LittleLoss"]],
+      "weights": [[1,-1]]
     },
     "con6":
     {
-      "name":"LoseBigAnt>NeutAnt",
-      "conditions":[["LoseBigAnticipation","NeutralAnticipation"],["LoseBigAnticipation","NeutralAnticipation"]],
-      "weights":[[0.5,-0.5],[0.5,-0.5]]
+      "name":"BigLoss>LittleLoss",
+      "conditions": [["BigLoss","LittleLoss"]],
+      "weights": [[1,-1]]
     },
     "con7":
     {
-      "name":"LoseSmallAnt>NeutAnt",
-      "conditions":[["LoseSmallAnticipation","NeutralAnticipation"],["LoseSmallAnticipation","NeutralAnticipation"]],
-      "weights":[[0.5,-0.5],[0.5,-0.5]]
+      "name":"BigLoss>Neutral",
+      "conditions": [["BigLoss","NeutralWin","NeutralLoss"]],
+      "weights": [[1,-0.5,-0.5]]
     },
     "con8":
     {
-      "name":"BigWinAnt>SmallWinAnt",
-      "conditions":[["WinBigAnticipation","WinSmallAnticipation"],["WinBigAnticipation","WinSmallAnticipation"]],
-      "weights":[[0.5,-0.5],[0.5,-0.5]]
+      "name":"BigLoss>BigWin",
+      "conditions": [["BigLoss","BigWin"]],
+      "weights": [[1,-1]]
     },
     "con9":
     {
-      "name":"LoseBigAnt>LoseSmallAnt",
-      "conditions":[["LoseBigAnticipation","LoseSmallAnticipation"],["LoseBigAnticipation","LoseSmallAnticipation"]],
-      "weights":[[0.5,-0.5],[0.5,-0.5]]
+      "name":"LittleLoss>Neutral",
+      "conditions": [["LittleLoss","NeutralWin","NeutralLoss"]],
+      "weights": [[1,-0.5,-0.5]]
     },
     "con10":
     {
-      "name":"NeutFeedPos>NeutFeedNeg",
-      "conditions":[["NeutralFeedbackPositive","NeutralFeedbackNegative"],["NeutralFeedbackPositive","NeutralFeedbackNegative"]],
-      "weights":[[0.5,-0.5],[0.5,-0.5]]
+      "name":"LittleLoss>LittleWin",
+      "conditions": [["LittleLoss","LittleWin"]],
+      "weights": [[1,-1]]
+    },
+    "con11":
+    {
+      "name":"TotalWin>Neutral",
+      "conditions": [["BigWin","LittleWin","NeutralWin","NeutralLoss"]],
+      "weights": [[0.5,0.5,-0.5,-0.5]]
+    },
+    "con12":
+    {
+      "name":"TotalWin>TotalLoss",
+      "conditions": [["BigWin","LittleWin","BigLoss","LittleLoss"]],
+      "weights": [[0.5,0.5,-0.5,-0.5]]
+    },
+    "con13":
+    {
+      "name":"TotalLoss>Neutral",
+      "conditions": [["BigLoss","LittleLoss","NeutralWin","NeutralLoss"]],
+      "weights": [[0.5,0.5,-0.5,-0.5]]
+    },
+    "con14":
+    {
+      "name":"TotalLoss>TotalWin",
+      "conditions": [["BigLoss","LittleLoss","LittleWin","BigWin"]],
+      "weights": [[0.5,0.5,-0.5,-0.5]]
+    },
+    "con15":
+    {
+      "name":"BigWin>LittleLoss",
+      "conditions": [["BigWin","LittleLoss"]],
+      "weights": [[1,-1]]
+    },
+    "con16":
+    {
+      "name":"LittleLoss>LittleWin",
+      "conditions": [["BigWin","LittleWin"]],
+      "weights": [[1,-1]]
+    },
+    "con17":
+    {
+      "name":"LittleWin>BigLoss",
+      "conditions": [["LittleWin","BigLoss"]],
+      "weights": [[1,-1]]
+    },
+    "con18":
+    {
+      "name":"LittleWin>BigWin",
+      "conditions": [["LittleWin","BigWin"]],
+      "weights": [[1,-1]]
+    },
+    "con19":
+    {
+      "name":"BigLoss>LittleWin",
+      "conditions": [["BigLoss","LittleWin"]],
+      "weights": [[1,-1]]
+    },
+    "con20":
+    {
+      "name":"LittleLoss>LittleWin",
+      "conditions": [["BigWin","LittleWin"]],
+      "weights": [[1,-1]]
+    },
+    "con21":
+    {
+      "name":"Neutral>BigWin",
+      "conditions": [["NeutralWin","NeutralLoss","BigWin"]],
+      "weights": [[0.5,0.5,-1]]
+    },
+    "con22":
+    {
+      "name":"Neutral>LittleWin",
+      "conditions": [["NeutralWin","NeutralLoss","LittleWin"]],
+      "weights": [[0.5,0.5,-1]]
+    },
+    "con23":
+    {
+      "name":"Neutral>LittleLoss",
+      "conditions": [["NeutralWin","NeutralLoss","LittleLoss"]],
+      "weights": [[0.5,0.5,-1]]
+    },
+    "con24":
+    {
+      "name":"LittleLoss>Baseline",
+      "conditions": [["LittleLoss"]],
+      "weights": [[1]]
+    },
+    "con25":
+    {
+      "name":"LittleWin>Baseline",
+      "conditions": [["LittleWin"]],
+      "weights": [[1]]
+    },
+    "con26":
+    {
+      "name":"BigLoss>Baseline",
+      "conditions": [["BigLoss"]],
+      "weights": [[1]]
+    },
+    "con27":
+    {
+      "name":"BigWin>Baseline",
+      "conditions": [["BigWin"]],
+      "weights": [[1]]
+    },
+    "con28":
+    {
+      "name":"Neutral>Baseline",
+      "conditions": [["NeutralWin","NeutralLoss"]],
+      "weights": [[0.5,0.5]]
+    },
+    "con29":
+    {
+      "name":"TotalWin>Baseline",
+      "conditions": [["LittleWin","BigWin"]],
+      "weights": [[0.5,0.5]]
+    },
+    "con30":
+    {
+      "name":"TotalLoss>Baseline",
+      "conditions": [["LittleLoss","BigLoss"]],
+      "weights": [[0.5,0.5]]
+    },
+    "con31":
+    {
+      "name":"NeutralWin>NeutralLoss",
+      "conditions": [["NeutralWin","NeutralLoss"]],
+      "weights": [[1,-1]]
+    }
+  },
+  "faces":
+  {
+    "con1":
+    {
+      "name":"Faces>Shapes",
+      "conditions": [["Angry","Fearful","Happy","Neutral","Shapes"]],
+      "weights": [[0.25,0.25,0.25,0.25,-1]]
+    },
+    "con2":
+    {
+      "name":"Faces>Baseline",
+      "conditions": [["Angry","Fearful","Happy","Neutral"]],
+      "weights": [[0.25,0.25,0.25,0.25]]
+    },
+    "con3":
+    {
+      "name":"Fearful>Shapes",
+      "conditions": [["Fearful","Shapes"]],
+      "weights": [[1,-1]]
+    },
+    "con4":
+    {
+      "name":"Fearful>Baseline",
+      "conditions": [["Fearful"]],
+      "weights": [[1]]
+    },
+    "con5":
+    {
+      "name":"Fearful>Neutral",
+      "conditions": [["Fearful","Neutral"]],
+      "weights": [[1,-1]]
+    },
+    "con6":
+    {
+      "name":"Angry>Shapes",
+      "conditions": [["Angry","Shapes"]],
+      "weights": [[1,-1]]
+    },
+    "con7":
+    {
+      "name":"Angry>Baseline",
+      "conditions": [["Angry"]],
+      "weights": [[1]]
+    },
+    "con8":
+    {
+      "name":"Angry>Neutral",
+      "conditions": [["Angry","Neutral"]],
+      "weights": [[1,-1]]
+    },
+    "con9":
+    {
+      "name":"AngryFearful>Shapes",
+      "conditions": [["Angry","Fearful","Shapes"]],
+      "weights": [[0.5,0.5,-1]]
+    },
+    "con10":
+    {
+      "name":"AngryFearful>Baseline",
+      "conditions": [["Angry","Fearful"]],
+      "weights": [[0.5,0.5]]
+    },
+    "con11":
+    {
+      "name":"AngryFearful>Neutral",
+      "conditions": [["Angry","Fearful","Neutral"]],
+      "weights": [[0.5,0.5,-1]]
+    },
+    "con12":
+    {
+      "name":"Happy>Shapes",
+      "conditions": [["Happy","Shapes"]],
+      "weights": [[1,-1]]
+    },
+    "con13":
+    {
+      "name":"Happy>Baseline",
+      "conditions": [["Happy"]],
+      "weights": [[1]]
+    },
+    "con14":
+    {
+      "name":"Happy>Neutral",
+      "conditions": [["Happy","Neutral"]],
+      "weights": [[1,-1]]
+    },
+    "con15":
+    {
+      "name":"Neutral>Shapes",
+      "conditions": [["Neutral","Shapes"]],
+      "weights": [[1,-1]]
+    },
+    "con16":
+    {
+      "name":"Neutral>Baseline",
+      "conditions": [["Neutral"]],
+      "weights": [[1]]
+    },
+    "con17":
+    {
+      "name":"Shapes>Baseline",
+      "conditions": [["Shapes"]],
+      "weights": [[1]]
+    },
+    "con18":
+    {
+      "name":"FacesShapes>Baseline`",
+      "conditions": [["Angry","Fearful","Happy","Neutral","Shapes"]],
+      "weights": [[0.2,0.2,0.2,0.2,0.2]]
+    }
+  },
+  "gng":
+  {
+    "con1":
+    {
+      "name":"noGoCorrect>go",
+      "conditions": [["noGoCorrect","go"]],
+      "weights": [[1,-1]]
+    },
+    "con2":
+    {
+      "name":"noGoCorrect+noGoIncorrect>go",
+      "conditions": [["noGoCorrect","noGoIncorrect","go"]],
+      "weights": [[0.5,0.5,-1]]
+    },
+    "con3":
+    {
+      "name":"noGoIncorrect>go",
+      "conditions": [["noGoIncorrect","go"]],
+      "weights": [[1,-1]]
+    },
+    "con4":
+    {
+      "name":"noGoCorrect>noGoIncorrect",
+      "conditions": [["noGoIncorrect","noGoIncorrect"]],
+      "weights": [[1,-1]]
+    },
+    "con5":
+    {
+      "name":"noGoCorrect>noGoIncorrect+go",
+      "conditions": [["noGoCorrect","noGoIncorrect","go"]],
+      "weights": [[1,-0.5,-0.5]]
     }
   }
 }

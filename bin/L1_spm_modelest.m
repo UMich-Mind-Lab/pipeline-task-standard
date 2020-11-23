@@ -6,14 +6,18 @@ try
 
   addParameter(p,'SPM','');
   addParameter(p,'outFile','');
-  addParameter(p,'res',9)
+  addParameter(p,'spmConfig','config/spm_config.json');
 
   parse(p,varargin{:});
 
+  %read spmConfig into workspace
+  spmCfg = jsondecode(fileread(p.Results.spmConfig));
+  spmCfg = spmCfg.(mfilename());
+
   %make batch job
   mbatch{1}.spm.stats.fmri_est.spmmat = {p.Results.SPM};
-  mbatch{1}.spm.stats.fmri_est.write_residuals = p.Results.res;
-  mbatch{1}.spm.stats.fmri_est.method.Classical = 1;
+  mbatch{1}.spm.stats.fmri_est.write_residuals = spmCfg.write_residuals;
+  mbatch{1}.spm.stats.fmri_est.method.Classical = spmCfg.method_classical;
 
   %save job to run in container
   save(p.Results.outFile,'mbatch');

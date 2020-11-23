@@ -18,7 +18,7 @@ snakemake -s snakefile --cluster "sbatch -A {cluster.account} \
   -N {cluster.nodes} --ntasks-per-node={cluster.ntasks-per-node} \
   --cpus-per-task={cluster.cpus-per-task} --mem={cluster.mem} \
   --job-name={cluster.job-name} -o {cluster.out} -e {cluster.err}" \
-  --cluster-config config/sm_slurm-config.json -k --jobs 50 --latency-wait 90
+  --cluster-config config/sm_slurm-config.json -k --jobs 150 --latency-wait 90 --rerun-incomplete
 
 # I don't understand profiles but maybe I'll figure it out later
 # snakemake -s ./snakefiles/func_processing_test.smk --profile slurm-func \#

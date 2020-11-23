@@ -1,21 +1,49 @@
 {
   "__default__":
   {
-    "account":"lsa1",
+    "account":"lukehyde{wildcards.ses}",
     "partition":"standard",
     "mail-type":"FAIL",
     "time":"01:00:00",
     "nodes":1,
     "ntasks-per-node":1,
-    "cpus-per-task":2,
+    "cpus-per-task":1,
     "mem":"8gb",
     "job-name":"{wildcards.sub}.{wildcards.ses}.{rule}",
-    "out":"logs/sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out",
-    "err":"logs/sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.err"
+    "out":"logs/{wildcards.task}_sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out",
+    "err":"logs/{wildcards.task}_sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out"
+  },
+  "getRawT1w":
+  {
+    "account":"lukehyde{wildcards.ses}",
+    "partition":"standard",
+    "mail-type":"FAIL",
+    "time":"01:00:00",
+    "nodes":1,
+    "ntasks-per-node":1,
+    "cpus-per-task":1,
+    "mem":"8gb",
+    "job-name":"{wildcards.sub}.{wildcards.ses}.{rule}",
+    "out":"logs/anat_sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out",
+    "err":"logs/anat_sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out"
+  },
+  "hCorr":
+  {
+    "account":"lukehyde{wildcards.ses}",
+    "partition":"standard",
+    "mail-type":"FAIL",
+    "time":"01:00:00",
+    "nodes":1,
+    "ntasks-per-node":1,
+    "cpus-per-task":1,
+    "mem":"8gb",
+    "job-name":"{wildcards.sub}.{wildcards.ses}.{rule}",
+    "out":"logs/anat_sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out",
+    "err":"logs/anat_sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out"
   },
   "icaAROMA":
   {
-    "account":"lsa1",
+    "account":"lukehyde{wildcards.ses}",
     "partition":"standard",
     "mail-type":"FAIL",
     "time":"01:00:00",
@@ -24,7 +52,7 @@
     "cpus-per-task":2,
     "mem":"8gb",
     "job-name":"{wildcards.sub}.{wildcards.ses}.{rule}",
-    "out":"logs/sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out",
-    "err":"logs/sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.err"
+    "out":"logs/{wildcards.task}_sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out",
+    "err":"logs/{wildcards.task}_sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out"
   }
 }

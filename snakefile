@@ -1,7 +1,7 @@
 #tell it to not submit rule all to a cluster node
 
 
-localrule: all
+localrules: all, getRawFunc, getRawT1w, getRawFmap, getRawFmapMag, makeArtConfig
 configfile: 'config/sm_config.json'
 
 # pseudo rule to tell snakemake what we want the final product to be
@@ -16,6 +16,8 @@ rule all:
             task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq'],
             run=config['run']),
         expand('data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/con_0001.nii',
+            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq']),
+        expand('data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/coverage/rjuly_bilat_vs_duke.txt',
             task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq'])
 
 
@@ -245,17 +247,18 @@ rule ART:
 
 #Now we begin creating Level 1s. Run wildcard is no longer used bc we created a
 #run variable combining our multiple runs.
+
+#if your bids directory does not yet have the events.tsv file, we're making those here
+#from the source files. Remove this rule if you already have your events.tsv file
 rule mkEventsTsv:
     input:
-        eventMAT = '../../eventLogs/sub-{sub}/ses-{ses}/sub-{sub}_ses-{ses}_task-{task}_events.mat'
+        eventMAT = '../../eventLogs/sub-{sub}/ses-{ses}/sub-{sub}_ses-{ses}_run-{run}_{task}.mat'
     output:
-        eventTSV1 = config['bids_dir']+'/sub-{sub}/ses-{ses}/func/sub-{sub}_ses-{ses}_task-{task}_acq-mb_run-1_events.tsv',
-        eventTSV2 = config['bids_dir']+'/sub-{sub}/ses-{ses}/func/sub-{sub}_ses-{ses}_task-{task}_acq-mb_run-2_events.tsv'
+        eventTSV = config['bids_dir']+'/sub-{sub}/ses-{ses}/func/sub-{sub}_ses-{ses}_task-{task}_acq-{acq}_run-{run}_events.tsv'
     shell:
         '''
-        matlab -nodisplay -r "cd $PWD; addpath $PWD/bin; addpath {config[spm_dir]};
-        extract_events('{input}', '{output.eventTSV1}', '{wildcards.task}', 1);
-        extract_events('{input}', '{output.eventTSV2}', '{wildcards.task}', 2); exit"
+        matlab -nodisplay -r "cd $PWD; addpath ../../bin; addpath {config[spm_dir]};
+        extract_events('{input}', '{output.eventTSV}', '{wildcards.task}', 1); exit"
         '''.replace('\n','')
 
 rule modelspec:
@@ -310,5 +313,18 @@ rule modelcontrasts:
         '''
 
 ################################################################################
-########################## QUALITY CHECKING RULES ##############################
+##########################CCOVERAGE CHECKING RULES #############################
 ################################################################################
+
+rule vsCov:
+    input:
+        con = 'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/con_0001.nii',
+        mask = config['mask_dir'] + '/rjuly_bilat_vs_duke.nii'
+    output:
+        'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/coverage/rjuly_bilat_vs_duke.txt'
+    shell:
+        '''
+        matlab -nodisplay -r "cd $PWD; addpath $PWD/bin/; addpath
+        $PWD/{config[spm_dir]}; batch_check_coverage('{input.con}',
+        '{input.mask}','$(dirname {output})'); exit;"
+        '''.replace('\n','')

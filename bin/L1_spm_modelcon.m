@@ -10,7 +10,7 @@ try
   addParameter(p,'spmCfg','config/spm_modelcon_config.json')
 
   parse(p,varargin{:});
-    
+
   %load SPM file into workspace
   load(p.Results.SPM);
 
@@ -54,8 +54,8 @@ try
 
     condNamesMatch = all(cellfun(@(x) isequal(x,spmCfg.(task).(iCon).conditions{1}),spmCfg.(task).(iCon).conditions));
     condWeightsMatch = all(all(spmCfg.(task).(iCon).weights(1,:) == spmCfg.(task).(iCon).weights));
-    condAnySesExist = all(any(condExist));
-    condAllSesExist = all(all(condExist));
+    condAnySesExist = all(any(condExist,1));
+    condAllSesExist = all(all(condExist,1));
 
     if condNamesMatch && condWeightsMatch && condAnySesExist && ~condAllSesExist
       % 1. get total weight per condition
@@ -65,7 +65,7 @@ try
       % 5. replace missing condition names with empty string
       sumSesWeights = sum(spmCfg.(task).(iCon).weights);
       numSesConditions = sum(condExist);
-      NewSesWeights = sesSumWeights ./ numSesConditions;
+      newSesWeights = sumSesWeights ./ numSesConditions;
       spmCfg.(task).(iCon).weights = repmat(newSesWeights,nSess,1);
       spmCfg.(task).(iCon).weights(~condExist) = 0;
       warning('At least one condition specified for contrast %s is missing from the events.tsv file. We will still make the contrast by redistributing the weights across the different sessions',spmCfg.(task).(iCon).name);
@@ -97,7 +97,7 @@ try
         %now loop through conditions for current session
         for k = 1:length(c)
           %get index for condition within session condition list
-          idx = find(contains(allConditions{j},c{k})) + nShift;
+          idx = find(strcmp(allConditions{j},c{k})) + nShift;
           %add appropriate value to weights array
           w(idx) = spmCfg.(task).(iCon).weights(j,k);
         end
@@ -119,7 +119,7 @@ try
 
   %% save matlabbatch to run in container
   save(p.Results.outFile,'mbatch');
-  
+
 catch ME
   fprintf('MATLAB code threw an exception:\n')
   fprintf('%s\n',ME.message);
