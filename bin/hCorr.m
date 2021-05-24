@@ -89,37 +89,22 @@ try
     orientation='coronal';
   end
 
-  %foo = vol.dim(inpl_crd);
-  %npix = foo(1);
-  npix = xdim;
+  npix = size(Y,inpl_crd(1));
   np2 = npix/2;
 
-  %thres = input('gimme threshold % [5] =');
-  %if(isempty(thres))
   thres = 5;
-  %end;
   thres = thres*.01;
 
-  % Y = spm_read_vols(vol,0);
-
-  orientation='axial';
-  thrpl_crd=3;
-
-  fprintf('\nAssuming the planes were acquired in ');
-  fprintf(orientation); fprintf( ' orientation.\n\n');
-
+  fprintf('\nAssuming the planes were acquired in %s orientation.\n\n',orientation);
 
   % initialize the corrected output volume Yc
-  % Yc=zeros(vol.dim(1:3));
   Yc = zeros(size(Y));
 
   fprintf('Please wait - now working on plane    ');
 
   % begin looping through slices
   % ----------------------------
-  %for slice = 1:vol.dim(thrpl_crd);
-  % for slice = 1:h.zdim;
-  for slice = 1:zdim
+  for slice = 1:size(Y,thrpl_crd)
     if slice<10; fprintf('\b%d',slice);
     elseif slice<100,  fprintf('\b\b%d',slice);
     elseif slice<1000, fprintf('\b\b\b%d',slice);
@@ -178,7 +163,6 @@ try
     if thrpl_crd==2; Yc(:,slice,:) = Iout; end
     if thrpl_crd==3; Yc(:,:,slice) = Iout; end
 
-    Yc(:,:,slice) = Iout;
     clear img;
 
     % end looping through slices

@@ -14,6 +14,12 @@ try
   spmCfg = jsondecode(fileread(p.Results.spmConfig));
   spmCfg = spmCfg.(mfilename());
 
+  %get L1 directory, remove mask.nii so that spm allows overwrite without prompting ui warning message
+  %it'd be nice if this could be more elegantly done by some batch option to disable gui stuff/allow
+  %overwrite or whatever, but alas
+  [L1Dir,~,~] = fileparts(p.Results.SPM);
+  delete(sprintf('%s/mask.nii',L1Dir));
+  
   %make batch job
   mbatch{1}.spm.stats.fmri_est.spmmat = {p.Results.SPM};
   mbatch{1}.spm.stats.fmri_est.write_residuals = spmCfg.write_residuals;

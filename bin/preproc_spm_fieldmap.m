@@ -16,7 +16,7 @@ try
 
   %apply to nifti image
   epiP = spm_vol(tFunc);
-  IP.epiP = epiP(10) %10th volume is reference
+  IP.epiP = epiP(10); %10th volume is reference
   IP.fmagP = spm_vol(eFmapMag);
   IP.vdmP = FieldMap('MatchVDM',IP);
 catch ME

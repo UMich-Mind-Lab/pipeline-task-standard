@@ -28,6 +28,21 @@
     "mask": 1,
     "prefix": "u"
   },
+  "preproc_spm_realign":
+  {
+    "quality": 0.9,
+    "sep": 4,
+    "fwhm": 5,
+    "rtm": 0,
+    "einterp": 2,
+    "ewrap": [[0,0,0]],
+    "weight": "",
+    "which": [[2,1]],
+    "rinterp": 4,
+    "rwrap": [[0,0,0]],
+    "mask": 1,
+    "prefix": "u"
+  },
   "preproc_spm_coregister":
   {
     "cost_fun": "nmi",
@@ -67,7 +82,7 @@
   },
   "L1_spm_modelest":
   {
-    "write_residuals":0,
+    "write_residuals":1,
     "method_classical":1
   }
 }

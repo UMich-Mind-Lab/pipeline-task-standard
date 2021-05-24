@@ -27,6 +27,20 @@
     "out":"logs/anat_sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out",
     "err":"logs/anat_sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out"
   },
+  "getRawT1wOverlay":
+  {
+    "account":"lukehyde{wildcards.ses}",
+    "partition":"standard",
+    "mail-type":"FAIL",
+    "time":"01:00:00",
+    "nodes":1,
+    "ntasks-per-node":1,
+    "cpus-per-task":1,
+    "mem":"8gb",
+    "job-name":"{wildcards.sub}.{wildcards.ses}.{rule}",
+    "out":"logs/anat_sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out",
+    "err":"logs/anat_sub-{wildcards.sub}_ses-{wildcards.ses}_{rule}-%j.out"
+  },
   "hCorr":
   {
     "account":"lukehyde{wildcards.ses}",

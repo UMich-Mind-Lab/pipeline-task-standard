@@ -1,0 +1,6 @@
+.DS_Store
+.snakemake
+tmp/*
+data/*
+logs/*
+

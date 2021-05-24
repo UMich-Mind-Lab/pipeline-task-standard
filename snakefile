@@ -1,6 +1,5 @@
 #tell it to not submit rule all to a cluster node
 
-
 localrules: all, getRawFunc, getRawT1w, getRawFmap, getRawFmapMag, makeArtConfig
 configfile: 'config/sm_config.json'
 
@@ -10,15 +9,29 @@ rule all:
         expand(config['bids_dir']+'/sub-{sub}/ses-{ses}/func/sub-{sub}_ses-{ses}_task-{task}_acq-{acq}_run-{run}_events.tsv',
             sub=config['sub'],ses=config['ses'],task=config['task'],acq=config['acq'],run=config['run']),
         expand('data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/chT1w.nii',
-            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq'],
-            run=config['run']),
+            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq'],run=config['run']),
         expand('data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/swutbold.nii',
-            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq'],
-            run=config['run']),
+            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq'],run=config['run']),
         expand('data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/con_0001.nii',
             task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq']),
+        expand('data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/residuals.nii.gz',
+            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq']),
+        expand('data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/sub-{sub}_ses-{ses}_task-{task}_acq-{acq}_run-{run}_utboldref.nii.gz',
+            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq'],run=config['run']),
+        expand('data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/sub-{sub}_ses-{ses}_task-{task}_acq-{acq}_run-{run}_wutboldref.nii.gz',
+            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq'],run=config['run']),
+        expand('data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/coverage/rwholeBrain_wfupickatlas.txt',
+            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq']),
+        expand('data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/coverage/rfrontalLobe.txt',
+            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq']),
+        expand('data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/coverage/GM_PFC_mask.txt',
+            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq']),
         expand('data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/coverage/rjuly_bilat_vs_duke.txt',
-            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq'])
+            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq']),
+        expand('data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/coverage/GM_VS_mask.txt',
+            task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq']),
+	expand('data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/coverage/AAL_BiAmy_PickAtlas.txt',
+	    task=config['task'],sub=config['sub'],ses=config['ses'],acq=config['acq'])
 
 
 # STEP 1 - COPY INPUT FILES
@@ -30,6 +43,8 @@ rule getRawFunc:
     shell:
         'gunzip -c {input} > {output}'
 
+ruleorder: getRawT1w > getRawT1wOverlay
+
 rule getRawT1w:
     input:
         RawT1w = config['bids_dir']+'/sub-{sub}/ses-{ses}/anat/sub-{sub}_ses-{ses}_acq-highres_T1w.nii.gz'
@@ -37,6 +52,17 @@ rule getRawT1w:
         tmpT1w = temp('tmp/sub-{sub}/ses-{ses}/T1w.nii')
     shell:
         'gunzip -c {input.RawT1w} > {output.tmpT1w}'
+
+# in our study, there are a couple subjects that don't have a high resolution
+# T1w image. We've found though that for this pipeline the T1w overlay is
+# sufficient for the purposes of normalization
+rule getRawT1wOverlay:
+    input:
+        RawT1wOverlay = config['bids_dir'] + '/sub-{sub}/ses-{ses}/anat/sub-{sub}_ses-{ses}_acq-overlay_T1w.nii.gz'
+    output:
+        tmpT1w = temp('tmp/sub-{sub}/ses-{ses}/T1w.nii')
+    shell:
+        'gunzip -c {input.RawT1wOverlay} > {output.tmpT1w}'
 
 rule getRawFmap:
     input:
@@ -111,7 +137,11 @@ rule slicetime:
         rm $tmpJob
         '''
 
-rule prep_realignUnwarp:
+# in our pipeline, we realign to the 10th volume. SPM has two settings for which image to
+# realign to - either a computed mean image, or the first volume specified in the array.
+# So we can realign to the 10th volume by just reordering the volumes and making a new file
+# Then we can switch back the realign output!
+rule prepRealign:
     input:
         refFunc = 'data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/bold.nii',
         tFunc = 'data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/tbold.nii'
@@ -132,6 +162,16 @@ rule prep_realignUnwarp:
         rm $refVol* $tmpStr*
         '''
 
+
+# SPM realignment can simultaneously unwarp if a fieldmap is present, which
+# reduces acquisition bias. If there is no available fieldmap (which is the case
+# for the spiral acquisition subjects of MTwiNS), we'll just realign. Because
+# both rules would be producing the same output files, we need the ruleorder
+# declaration to tell snakemake to prioritize using the fieldmap version, in
+# order to avoid rule ambiguity.
+
+ruleorder: realignUnwarp > realign
+
 rule realignUnwarp:
     input:
         tmpTFunc = 'data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/tmp_tbold.nii',
@@ -149,7 +189,22 @@ rule realignUnwarp:
         rm $tmpJob
         '''
 
-rule cleanRealignUnwarp:
+rule realign:
+    input:
+        tmpTFunc = 'data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/tmp_tbold.nii',
+    output:
+        tmpUtFunc = temp('data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/utmp_tbold.nii'),
+        tmpRpTxt = temp('data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/rp_tmp_tbold.txt')
+    shell:
+        '''
+        tmpJob=$(mktemp tmp/XXXXXXXX.mat)
+        matlab -nodisplay -r "cd $PWD; addpath $PWD/bin; addpath {config[spm_dir]}; \
+        preproc_spm_realign('inFunc', '{input.tmpTFunc}','outFile', '$tmpJob'); exit"
+        singularity run -B $PWD:/data {config[spmSif]} /data/bin/spm_jobman_run.m $tmpJob
+        rm $tmpJob
+        '''
+
+rule cleanRealign:
     input:
         tmpUtFunc = 'data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/utmp_tbold.nii',
         tmpRpTxt = 'data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/rp_tmp_tbold.txt'
@@ -245,12 +300,31 @@ rule ART:
 ###################### SUBJECT LEVEL (L1) ANALYSIS RULES #######################
 ################################################################################
 
-#Now we begin creating Level 1s. Run wildcard is no longer used bc we created a
-#run variable combining our multiple runs.
+#PREPARE EVENTS.TSV
 
-#if your bids directory does not yet have the events.tsv file, we're making those here
-#from the source files. Remove this rule if you already have your events.tsv file
-rule mkEventsTsv:
+# the MTwiNS projects have some subjects whose source behavioral data was
+# conducted in EPRIME, resulting in exported csv's. The project made a switch
+# to psychtoolbox, with matlab structure output. The two rules below do that for us.
+
+# It's typical to want to create these events.tsv files while setting up the bids
+# structure and before doing any of this processing stuff. However, there are
+# some different use cases where we may specify events slightly differently for
+# a given pipeline. For example, when regressing out task effects to "turn" task
+# data into resting data, we would much more stringently model all events, as
+# opposed to doing a standard analysis. In order to keep just one version of the
+# bids directory, we have each pipeline create its own bids.tsv file with the
+# appropriate events in it.
+
+# These two rules are the only ones that are project specific. As such, the
+# extract_events.m and extract_events.py scripts would need to be edited for each
+# project.
+
+# If you already have events.tsv in your BIDS data set, then you can simply remove
+# these two rules.
+
+ruleorder: mat2tsv > csv2tsv
+
+rule mat2tsv:
     input:
         eventMAT = '../../eventLogs/sub-{sub}/ses-{ses}/sub-{sub}_ses-{ses}_run-{run}_{task}.mat'
     output:
@@ -260,6 +334,17 @@ rule mkEventsTsv:
         matlab -nodisplay -r "cd $PWD; addpath ../../bin; addpath {config[spm_dir]};
         extract_events('{input}', '{output.eventTSV}', '{wildcards.task}', 1); exit"
         '''.replace('\n','')
+
+rule csv2tsv:
+    input:
+        eventCSV = '../../eventLogs/sub-{sub}/ses-{ses}/sub-{sub}_ses-{ses}_run-{run}_{task}.csv'
+    output:
+        eventTSV = config['bids_dir']+'/sub-{sub}/ses-{ses}/func/sub-{sub}_ses-{ses}_task-{task}_acq-{acq}_run-{run}_events.tsv'
+    script:
+        './bin/mtwins_csv2bids.py'
+
+#Now we begin creating Level 1s. Run wildcard is no longer used bc we created a
+#run variable combining our multiple runs.
 
 rule modelspec:
     input:
@@ -287,7 +372,8 @@ rule modelest:
     input:
         SPM = ancient('data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/SPM.mat')
     output:
-        beta = 'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/beta_0001.nii'
+        beta = 'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/beta_0001.nii',
+        res = 'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/Res_0001.nii'
     shell:
         '''
         tmpJob=$(mktemp tmp/XXXXXXXX.mat)
@@ -295,6 +381,19 @@ rule modelest:
         L1_spm_modelest('SPM','{input.SPM}','outFile','$tmpJob'); exit"
         singularity run -B $PWD:/data {config[spmSif]} /data/bin/spm_jobman_run.m $tmpJob
         rm $tmpJob
+        '''
+
+rule concatResiduals:
+    input:
+        'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/Res_0001.nii'
+    output:
+        'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/residuals.nii.gz'
+    shell:
+        '''
+        FSLOUTPUTTYPE=NIFTI_GZ
+        resDir=$(dirname "{input}")
+        fslmerge  -t {output} $resDir/Res_*.nii
+        rm $resDir/Res_*.nii
         '''
 
 rule modelcontrasts:
@@ -316,6 +415,50 @@ rule modelcontrasts:
 ##########################CCOVERAGE CHECKING RULES #############################
 ################################################################################
 
+# these rules produce text output with coverage information for certain regions
+# of interest in our lab. Making a new coverage check should be as simple as
+# placing the mask file in the directory specified in ./config/sm_config.json,
+# updating the mask and output filepaths, and adding the output to rule all
+
+rule wholeBrainCov:
+    input:
+        con = 'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/con_0001.nii',
+        mask = config['mask_dir'] + '/rwholeBrain_wfupickatlas.nii'
+    output:
+        'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/coverage/rwholeBrain_wfupickatlas.txt'
+    shell:
+        '''
+        matlab -nodisplay -r "cd $PWD; addpath $PWD/bin/; addpath
+        $PWD/{config[spm_dir]}; batch_check_coverage('{input.con}',
+        '{input.mask}','$(dirname {output})'); exit;"
+        '''.replace('\n','')
+
+rule frontalLobeCov:
+    input:
+        con = 'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/con_0001.nii',
+        mask = config['mask_dir'] + '/rfrontalLobe.nii'
+    output:
+        'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/coverage/rfrontalLobe.txt'
+    shell:
+        '''
+        matlab -nodisplay -r "cd $PWD; addpath $PWD/bin/; addpath
+        $PWD/{config[spm_dir]}; batch_check_coverage('{input.con}',
+        '{input.mask}','$(dirname {output})'); exit;"
+        '''.replace('\n','')
+
+rule gmPFCCov:
+    input:
+        con = 'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/con_0001.nii',
+        mask = config['mask_dir'] + '/GM_PFC_mask.nii'
+    output:
+        'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/coverage/GM_PFC_mask.txt'
+    shell:
+        '''
+        matlab -nodisplay -r "cd $PWD; addpath $PWD/bin/; addpath
+        $PWD/{config[spm_dir]}; batch_check_coverage('{input.con}',
+        '{input.mask}','$(dirname {output})'); exit;"
+        '''.replace('\n','')
+
 rule vsCov:
     input:
         con = 'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/con_0001.nii',
@@ -328,3 +471,55 @@ rule vsCov:
         $PWD/{config[spm_dir]}; batch_check_coverage('{input.con}',
         '{input.mask}','$(dirname {output})'); exit;"
         '''.replace('\n','')
+
+rule biamyCov:
+    input:
+        con = 'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/con_0001.nii',
+        mask = config['mask_dir'] + '/AAL_BiAmy_PickAtlas.nii'
+    output:
+        'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/coverage/AAL_BiAmy_PickAtlas.txt'
+    shell:
+        '''
+	matlab -nodisplay -r "cd $PWD; addpath $PWD/bin/; addpath
+        $PWD/{config[spm_dir]}; batch_check_coverage('{input.con}',
+        '{input.mask}','$(dirname {output})'); exit;"
+        '''.replace('\n','')
+
+    
+
+rule gmVSCov:
+    input:
+        con = 'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/con_0001.nii',
+        mask = config['mask_dir'] + '/GM_VS_mask.nii'
+    output:
+        'data/{task}/L1/acq-{acq}/sub-{sub}/ses-{ses}/coverage/GM_VS_mask.txt'
+    shell:
+        '''
+        matlab -nodisplay -r "cd $PWD; addpath $PWD/bin/; addpath
+        $PWD/{config[spm_dir]}; batch_check_coverage('{input.con}',
+        '{input.mask}','$(dirname {output})'); exit;"
+        '''.replace('\n','')
+
+################################################################################
+##########################QUALITY CHECKING RULES ###############################
+################################################################################
+
+# we need a reference functional image for coregistration check
+# (see ./bin/qc_checkreg.sh)
+rule getRegisteredFunc:
+    input:
+        'data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/utbold.nii'
+    output:
+        'data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/sub-{sub}_ses-{ses}_task-{task}_acq-{acq}_run-{run}_utboldref.nii.gz'
+    shell:
+        'fslroi {input} {output} 9 1'
+
+# same for normalization check
+# (see ./bin/qc_checkwarp.sh)
+rule getNormFunc:
+    input:
+        'data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/wutbold.nii'
+    output:
+        'data/{task}/preproc/acq-{acq}/sub-{sub}/ses-{ses}/run-{run}/sub-{sub}_ses-{ses}_task-{task}_acq-{acq}_run-{run}_wutboldref.nii.gz'
+    shell:
+        'fslroi {input} {output} 9 1'
